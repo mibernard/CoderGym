@@ -839,6 +839,70 @@
             "requirements": {
                 "validation": "AUC/AP reported with deterministic sampling."
             }
+        },
+        {
+            "series": "Time Series Forecasting",
+            "level": 1,
+            "id": "ts_lvl1_lstm_forecast",
+            "algorithm": "LSTM Time Series Forecasting",
+            "description": "Train an LSTM on synthetic multivariate time series (sine + trend + noise) for sequence-to-one prediction using sliding windows.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include LSTM gating equations: forget, input, cell, output gates.",
+                "data": "Synthetic 3-feature time series: sin, cos, sin(2t) with trend + noise. 80/20 train/val split via sliding windows.",
+                "implementation": "nn.LSTM with 2 layers, gradient clipping, Adam optimizer.",
+                "evaluation": "evaluate() must compute MSE, R2, and MAE on VALIDATION split.",
+                "main_block": "Train for 60 epochs, print train/val MSE and R2, assert R2 > 0.80 on val and MSE < 0.15.",
+                "output": "Return dict with loss_history, val_loss_history, final metrics."
+            }
+        },
+        {
+            "series": "Optimizer Comparison",
+            "level": 1,
+            "id": "optim_lvl1_adamw_cosine",
+            "algorithm": "AdamW + Cosine Annealing LR vs Vanilla SGD",
+            "description": "Compare AdamW with CosineAnnealingWarmRestarts scheduler against vanilla SGD on a synthetic nonlinear regression task.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include AdamW decoupled weight decay update rule and cosine annealing formula.",
+                "data": "Synthetic nonlinear regression with 8 features: y = sin(x1) + x2*x3 - x4^2 + 0.5*x5 + noise.",
+                "implementation": "Train identical MLP architectures with AdamW+CosineAnnealing vs SGD; compare val metrics.",
+                "evaluation": "evaluate() must compute MSE and R2 on VALIDATION split for both optimizers.",
+                "main_block": "Train both configs for 80 epochs, print comparison table, assert AdamW R2 > 0.70.",
+                "output": "Return dict with loss histories and metrics for both optimizers."
+            }
+        },
+        {
+            "series": "Regularization Techniques",
+            "level": 1,
+            "id": "reg_lvl1_mixup_augmentation",
+            "algorithm": "Mixup Data Augmentation",
+            "description": "Apply Mixup data augmentation to multi-class classification and compare generalization against a no-augmentation baseline.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include Mixup formula: x_tilde = lambda*x_i + (1-lambda)*x_j with lambda ~ Beta(alpha, alpha), and the mixed loss.",
+                "data": "Synthetic 6-class classification (sklearn make_classification) with overlapping boundaries.",
+                "implementation": "MLP with BatchNorm + Dropout; Mixup applied per-batch in training loop; Adam optimizer.",
+                "evaluation": "evaluate() must compute accuracy, macro-F1, MSE, R2 on VALIDATION split.",
+                "main_block": "Train both Mixup and no-Mixup models for 80 epochs, compare val metrics, assert Mixup macro-F1 > 0.60.",
+                "output": "Return dict with loss histories and metrics for both configurations."
+            }
+        },
+        {
+            "series": "Multi-Task Learning",
+            "level": 1,
+            "id": "mtl_lvl1_shared_encoder",
+            "algorithm": "Multi-Task Learning (Shared Encoder)",
+            "description": "Train a shared encoder with two task heads (regression + binary classification) on related synthetic targets using a weighted joint loss.",
+            "interface_protocol": "pytorch_task_v1",
+            "requirements": {
+                "math": "Include joint loss formulation: L = w_A * MSE(y_reg) + w_B * BCE(y_cls).",
+                "data": "Synthetic: y_reg = x1 + sin(x2) + x3^2 + noise; y_cls = 1[y_reg > median]. 10 features, 80/20 split.",
+                "implementation": "SharedEncoder (BN + Dropout) with separate reg_head and cls_head; Adam optimizer.",
+                "evaluation": "evaluate() must compute regression MSE/R2 and classification accuracy.",
+                "main_block": "Train for 80 epochs, print both task metrics, assert reg R2 > 0.70 and cls acc > 0.80.",
+                "output": "Return dict with loss_history, val_loss_history, final metrics for both tasks."
+            }
         }
     ]
 }
